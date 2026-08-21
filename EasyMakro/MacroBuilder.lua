@@ -1,4 +1,5 @@
 local ADDON_NAME, EM = ...
+local L = EM.L
 
 local MAX_MACRO_NAME_LEN = 16
 local MAX_MACRO_BODY_LEN = 255
@@ -15,8 +16,8 @@ end
 
 -- entry = {
 --   kind = "spell" | "command",
---   spellName, spellID,      -- fuer kind == "spell"
---   commandKey,               -- fuer kind == "command"
+--   spellName, spellID,      -- für kind == "spell"
+--   commandKey,               -- für kind == "command"
 --   opts = {
 --     mouseoverHarm, mouseoverHelp, selfFallback,
 --     autoAttack, petAttack, stopCasting,
@@ -99,12 +100,12 @@ local function CopyOpts(opts)
 end
 
 -- Erstellt oder aktualisiert (existingName gesetzt) ein echtes WoW-Makro und
--- merkt sich die verwendeten Optionen in der SavedVariable zum spaeteren
--- Bearbeiten. Gibt (name) oder (nil, fehlermeldung) zurueck.
+-- merkt sich die verwendeten Optionen in der SavedVariable zum späteren
+-- Bearbeiten. Gibt (name) oder (nil, Fehlermeldung) zurück.
 function EM:SaveMacro(entry, existingName)
     local body = self:BuildMacroBody(entry)
     if #body > MAX_MACRO_BODY_LEN then
-        return nil, string.format("Makro-Text ist zu lang (%d/%d Zeichen).", #body, MAX_MACRO_BODY_LEN)
+        return nil, string.format(L.ERR_TOO_LONG, #body, MAX_MACRO_BODY_LEN)
     end
 
     local defaultBaseName = entry.spellName
@@ -119,9 +120,9 @@ function EM:SaveMacro(entry, existingName)
     local perChar = entry.perChar and true or nil
 
     -- Ob ein Makro "General" oder "Per Character" ist, wird nur bei der
-    -- Erstellung festgelegt und laesst sich per EditMacro nicht mehr
-    -- aendern. Hat der Nutzer die Kategorie gewechselt, muss das alte
-    -- Makro geloescht und neu angelegt werden.
+    -- Erstellung festgelegt und lässt sich per EditMacro nicht mehr
+    -- ändern. Hat der Nutzer die Kategorie gewechselt, muss das alte
+    -- Makro gelöscht und neu angelegt werden.
     local existingWasPerChar = existingName and self.db.macros[existingName] and self.db.macros[existingName].perChar
     local categoryChanged = existingName and (existingWasPerChar and true or false) ~= (perChar and true or false)
 
@@ -137,7 +138,7 @@ function EM:SaveMacro(entry, existingName)
     end
 
     if not index then
-        return nil, "Makro konnte nicht gespeichert werden (Limit erreicht oder ungueltiger Name?)."
+        return nil, L.ERR_SAVE_FAILED
     end
 
     if existingName and existingName ~= name then

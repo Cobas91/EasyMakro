@@ -1,35 +1,36 @@
 local ADDON_NAME, EM = ...
+local L = EM.L
 
--- Zusaetzliche Befehle, die ohne konkreten Zauber als eigenes Makro angelegt
--- werden koennen (tauchen in der Liste neben den Zaubern auf).
+-- Zusätzliche Befehle, die ohne konkreten Zauber als eigenes Makro angelegt
+-- werden können (tauchen in der Liste neben den Zaubern auf).
 EM.Commands = {
     {
         key = "STARTATTACK",
-        name = "Auto-Attack starten",
+        name = L.CMD_STARTATTACK,
         icon = "Interface\\Icons\\Ability_MeleeDamage",
         line = "/startattack",
     },
     {
         key = "PETATTACK",
-        name = "Pet: Angriff",
+        name = L.CMD_PETATTACK,
         icon = "Interface\\Icons\\Ability_Hunter_Pet_Assist",
         line = "/petattack",
     },
     {
         key = "PETFOLLOW",
-        name = "Pet: Folgen",
+        name = L.CMD_PETFOLLOW,
         icon = "Interface\\Icons\\Ability_Hunter_MendPet",
         line = "/petfollow",
     },
     {
         key = "FOLLOWTARGET",
-        name = "Ziel folgen",
+        name = L.CMD_FOLLOWTARGET,
         icon = "Interface\\Icons\\INV_Misc_Foot_Centaur",
         line = "/follow target",
     },
     {
         key = "STOPCASTING",
-        name = "Zauber abbrechen",
+        name = L.CMD_STOPCASTING,
         icon = "Interface\\Icons\\Spell_Nature_Slow",
         line = "/stopcasting",
     },

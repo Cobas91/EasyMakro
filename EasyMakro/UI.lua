@@ -1,4 +1,5 @@
 local ADDON_NAME, EM = ...
+local L = EM.L
 
 EM.UI = {}
 
@@ -101,7 +102,7 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
 
     if not item then
         iconTex:SetTexture(nil)
-        nameLabel:SetText("Waehle links einen Zauber oder Befehl aus")
+        nameLabel:SetText(L.CHOOSE_ITEM)
         kindLabel:SetText("")
         nameEdit:SetText("")
         saveButton:SetEnabled(false)
@@ -111,7 +112,7 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
 
     SetIconTexture(iconTex, item.icon)
     nameLabel:SetText(item.name)
-    kindLabel:SetText(item.kind == "spell" and (item.isPet and "Pet-Zauber" or "Zauber") or "Befehl")
+    kindLabel:SetText(item.kind == "spell" and (item.isPet and L.KIND_PET_SPELL or L.KIND_SPELL) or L.KIND_COMMAND)
 
     local opts = storedOpts or {}
     cbMouseoverHarm:SetChecked(opts.mouseoverHarm)
@@ -135,7 +136,7 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
 
     nameEdit:SetText(macroName or EM:MakeUniqueMacroName(item.name))
     saveButton:SetEnabled(true)
-    saveButton:SetText(macroName and "Makro aktualisieren" or "Makro erstellen")
+    saveButton:SetText(macroName and L.BTN_UPDATE or L.BTN_CREATE)
 
     SetStatus("")
     UpdatePreview()
@@ -185,7 +186,7 @@ local function LayoutListRows()
 
         row.item = item
         SetIconTexture(row.icon, item.icon)
-        local prefix = item.kind == "command" and "|cff66ccff[Befehl]|r " or ""
+        local prefix = item.kind == "command" and ("|cff66ccff" .. L.COMMAND_PREFIX .. "|r ") or ""
         row.text:SetText(prefix .. item.name)
         row:SetPoint("TOPLEFT", listContent, "TOPLEFT", 0, -(i - 1) * ROW_HEIGHT)
         row:Show()
@@ -245,9 +246,9 @@ local function DeleteMacroConfirmed(name)
 end
 
 StaticPopupDialogs["EASYMAKRO_DELETE_MACRO"] = {
-    text = "EasyMakro-Makro '%s' wirklich loeschen?",
-    button1 = "Loeschen",
-    button2 = "Abbrechen",
+    text = L.POPUP_CONFIRM_DELETE,
+    button1 = L.POPUP_DELETE,
+    button2 = L.POPUP_CANCEL,
     OnAccept = function(self, data)
         DeleteMacroConfirmed(data)
     end,
@@ -297,7 +298,7 @@ local function LayoutMacroRows()
             row.deleteBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
             row.deleteBtn:SetSize(70, 18)
             row.deleteBtn:SetPoint("RIGHT", -4, 0)
-            row.deleteBtn:SetText("Loeschen")
+            row.deleteBtn:SetText(L.BTN_DELETE)
 
             row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
             row.text:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
@@ -313,8 +314,8 @@ local function LayoutMacroRows()
                     GameTooltip:AddLine(EM:BuildMacroBody(data), 0.8, 0.8, 0.8, true)
                 end
                 GameTooltip:AddLine(" ")
-                GameTooltip:AddLine("Klick: In den Editor laden", 0.6, 1, 0.6)
-                GameTooltip:AddLine("Ziehen: Auf eine Aktionsleiste legen", 0.6, 1, 0.6)
+                GameTooltip:AddLine(L.TOOLTIP_CLICK, 0.6, 1, 0.6)
+                GameTooltip:AddLine(L.TOOLTIP_DRAG, 0.6, 1, 0.6)
                 GameTooltip:Show()
             end)
             row:SetScript("OnLeave", function(self)
@@ -330,7 +331,7 @@ local function LayoutMacroRows()
 
         row.macroName = name
         SetIconTexture(row.icon, data.icon)
-        local suffix = data.perChar and " |cff999999(Charakter)|r" or " |cff999999(Allgemein)|r"
+        local suffix = data.perChar and (" |cff999999" .. L.SUFFIX_CHARACTER .. "|r") or (" |cff999999" .. L.SUFFIX_GENERAL .. "|r")
         row.text:SetText(name .. suffix)
         row.selectedTex:SetShown(editingMacroName == name)
 
@@ -348,7 +349,7 @@ local function LayoutMacroRows()
     end
 
     macroContent:SetHeight(math.max(#names * ROW_HEIGHT, 1))
-    macroHeader:SetText(string.format("Meine EasyMakro-Makros (%d)", #names))
+    macroHeader:SetText(string.format(L.MY_MACROS_HEADER, #names))
 end
 
 function EM.UI.RefreshMacroList()
@@ -391,7 +392,7 @@ local function BuildFrame()
 
     local searchHint = leftPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
     searchHint:SetPoint("TOPLEFT", searchBox, "BOTTOMLEFT", 2, -2)
-    searchHint:SetText("Suche nach Zauber- oder Befehlsname")
+    searchHint:SetText(L.SEARCH_HINT)
 
     listScroll = CreateFrame("ScrollFrame", "EasyMakroListScroll", leftPanel, "UIPanelScrollFrameTemplate")
     listScroll:SetPoint("TOPLEFT", 0, -50)
@@ -420,43 +421,43 @@ local function BuildFrame()
     nameLabel:SetPoint("TOPLEFT", iconTex, "TOPRIGHT", 10, -2)
     nameLabel:SetPoint("RIGHT", -4, 0)
     nameLabel:SetJustifyH("LEFT")
-    nameLabel:SetText("Waehle links einen Zauber oder Befehl aus")
+    nameLabel:SetText(L.CHOOSE_ITEM)
 
     kindLabel = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
     kindLabel:SetPoint("TOPLEFT", nameLabel, "BOTTOMLEFT", 0, -2)
 
     local optionsHeader = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     optionsHeader:SetPoint("TOPLEFT", iconTex, "BOTTOMLEFT", 0, -14)
-    optionsHeader:SetText("Ausloesung")
+    optionsHeader:SetText(L.SECTION_TRIGGER)
 
-    cbMouseoverHarm = CreateCheckbox(rightPanel, "Mouseover-Ziel verwenden (Gegner)")
+    cbMouseoverHarm = CreateCheckbox(rightPanel, L.CB_MOUSEOVER_HARM)
     cbMouseoverHarm:SetPoint("TOPLEFT", optionsHeader, "BOTTOMLEFT", -2, -4)
-    cbMouseoverHelp = CreateCheckbox(rightPanel, "Mouseover-Ziel verwenden (Freund/Heilung)")
+    cbMouseoverHelp = CreateCheckbox(rightPanel, L.CB_MOUSEOVER_HELP)
     cbMouseoverHelp:SetPoint("TOPLEFT", cbMouseoverHarm, "BOTTOMLEFT", 0, -2)
-    cbSelfFallback = CreateCheckbox(rightPanel, "Sonst auf mir selbst wirken")
+    cbSelfFallback = CreateCheckbox(rightPanel, L.CB_SELF_FALLBACK)
     cbSelfFallback:SetPoint("TOPLEFT", cbMouseoverHelp, "BOTTOMLEFT", 0, -2)
 
     local extraHeader = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     extraHeader:SetPoint("TOPLEFT", cbSelfFallback, "BOTTOMLEFT", 2, -10)
-    extraHeader:SetText("Zusaetzliche Befehle")
+    extraHeader:SetText(L.SECTION_EXTRA)
 
-    cbAutoAttack = CreateCheckbox(rightPanel, "Auto-Attack aktivieren (/startattack)")
+    cbAutoAttack = CreateCheckbox(rightPanel, L.CB_AUTOATTACK)
     cbAutoAttack:SetPoint("TOPLEFT", extraHeader, "BOTTOMLEFT", -2, -4)
-    cbPetAttack = CreateCheckbox(rightPanel, "Pet zum Angriff schicken (/petattack)")
+    cbPetAttack = CreateCheckbox(rightPanel, L.CB_PETATTACK)
     cbPetAttack:SetPoint("TOPLEFT", cbAutoAttack, "BOTTOMLEFT", 0, -2)
-    cbStopCasting = CreateCheckbox(rightPanel, "Laufenden Zauber vorher abbrechen (/stopcasting)")
+    cbStopCasting = CreateCheckbox(rightPanel, L.CB_STOPCASTING)
     cbStopCasting:SetPoint("TOPLEFT", cbPetAttack, "BOTTOMLEFT", 0, -2)
 
     for _, cb in ipairs({ cbMouseoverHarm, cbMouseoverHelp, cbSelfFallback, cbAutoAttack, cbPetAttack, cbStopCasting }) do
         cb:SetScript("OnClick", UpdatePreview)
     end
 
-    cbPerChar = CreateCheckbox(rightPanel, "Nur fuer diesen Charakter speichern")
+    cbPerChar = CreateCheckbox(rightPanel, L.CB_PERCHAR)
     cbPerChar:SetPoint("TOPLEFT", cbStopCasting, "BOTTOMLEFT", 0, -10)
 
     local nameLbl = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     nameLbl:SetPoint("TOPLEFT", cbPerChar, "BOTTOMLEFT", 2, -12)
-    nameLbl:SetText("Makroname (max. 16 Zeichen)")
+    nameLbl:SetText(L.MACRO_NAME_LABEL)
 
     nameEdit = CreateFrame("EditBox", nil, rightPanel, "InputBoxTemplate")
     nameEdit:SetSize(200, 20)
@@ -469,7 +470,7 @@ local function BuildFrame()
 
     local previewLbl = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
     previewLbl:SetPoint("TOPLEFT", nameEdit, "BOTTOMLEFT", -4, -10)
-    previewLbl:SetText("Makro-Vorschau")
+    previewLbl:SetText(L.MACRO_PREVIEW_LABEL)
 
     local previewBackdrop = CreateFrame("Frame", nil, rightPanel, "InsetFrameTemplate")
     previewBackdrop:SetPoint("TOPLEFT", previewLbl, "BOTTOMLEFT", -2, -4)
@@ -485,7 +486,7 @@ local function BuildFrame()
     previewBox:EnableMouse(true)
     previewBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
     previewBox:SetScript("OnTextChanged", function(self)
-        -- schreibgeschuetzt: Aenderungen des Nutzers verwerfen
+        -- schreibgeschützt: Änderungen des Nutzers verwerfen
         if selectedItem then
             local entry = BuildCurrentEntry()
             local generated = EM:BuildMacroBody(entry)
@@ -498,7 +499,7 @@ local function BuildFrame()
     saveButton = CreateFrame("Button", nil, rightPanel, "UIPanelButtonTemplate")
     saveButton:SetSize(150, 24)
     saveButton:SetPoint("TOPLEFT", previewBackdrop, "BOTTOMLEFT", 2, -12)
-    saveButton:SetText("Makro erstellen")
+    saveButton:SetText(L.BTN_CREATE)
     saveButton:SetEnabled(false)
     saveButton:SetScript("OnClick", function()
         local entry = BuildCurrentEntry()
@@ -508,7 +509,7 @@ local function BuildFrame()
             SetStatus(err, true)
             return
         end
-        SetStatus("Gespeichert als '" .. name .. "'. Zieh das Icon unten links direkt in deine Aktionsleiste.")
+        SetStatus(string.format(L.MSG_SAVED, name))
         EM.UI.RefreshMacroList()
         RefreshBuilderPanel(selectedItem, name, entry.opts, entry.perChar)
     end)
@@ -525,7 +526,7 @@ local function BuildFrame()
     ----------------------------------------------------------------
     macroHeader = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
     macroHeader:SetPoint("TOPLEFT", leftPanel, "BOTTOMLEFT", 4, -12)
-    macroHeader:SetText("Meine EasyMakro-Makros")
+    macroHeader:SetText(string.format(L.MY_MACROS_HEADER, 0))
 
     local macroBackdrop = CreateFrame("Frame", nil, frame, "InsetFrameTemplate")
     macroBackdrop:SetPoint("TOPLEFT", macroHeader, "BOTTOMLEFT", -4, -6)
@@ -548,7 +549,7 @@ local function BuildFrame()
 end
 
 --------------------------------------------------------------------------
--- Oeffentliches API
+-- Öffentliches API
 --------------------------------------------------------------------------
 
 function EM.UI.Toggle()

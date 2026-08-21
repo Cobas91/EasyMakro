@@ -8,6 +8,7 @@
 ## IconTexture: Interface\Icons\INV_Misc_Note_06
 
 Core.lua
+Locale.lua
 Commands.lua
 SpellData.lua
 MacroBuilder.lua

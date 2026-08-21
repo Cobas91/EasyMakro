@@ -1,13 +1,13 @@
-<#
+﻿<#
 .SYNOPSIS
     Baut EasyMakro: kopiert das Addon ins WoW-AddOns-Verzeichnis zum Testen
-    und/oder packt es als releasefertige .zip fuer CurseForge.
+    und/oder packt es als releasefertige .zip für CurseForge.
 
 .PARAMETER SkipInstall
-    Ueberspringt das Kopieren in den WoW-AddOns-Ordner.
+    Überspringt das Kopieren in den WoW-AddOns-Ordner.
 
 .PARAMETER SkipZip
-    Ueberspringt das Erstellen der .zip-Datei.
+    Überspringt das Erstellen der .zip-Datei.
 
 .PARAMETER WowAddonsPath
     Pfad zum AddOns-Ordner der WoW-Installation. Default ist der
@@ -42,11 +42,11 @@ Write-Host "EasyMakro Version: $version" -ForegroundColor Cyan
 # --- In den WoW AddOns-Ordner installieren (zum Testen) ---------------------
 if (-not $SkipInstall) {
     if (-not (Test-Path $WowAddonsPath)) {
-        Write-Warning "WoW AddOns-Ordner nicht gefunden: $WowAddonsPath (Installation uebersprungen)"
+        Write-Warning "WoW AddOns-Ordner nicht gefunden: $WowAddonsPath (Installation übersprungen)"
     } else {
         $target = Join-Path $WowAddonsPath $AddonName
         Write-Host "Installiere nach: $target"
-        # robocopy /MIR spiegelt den Ordner (loescht auch entfernte Dateien)
+        # robocopy /MIR spiegelt den Ordner (löscht auch entfernte Dateien)
         robocopy $AddonSrc $target /MIR /NFL /NDL /NJH /NJS | Out-Null
         if ($LASTEXITCODE -ge 8) {
             throw "robocopy ist mit Exit-Code $LASTEXITCODE fehlgeschlagen."
@@ -76,5 +76,5 @@ if (-not $SkipZip) {
     Remove-Item $stagingDir -Recurse -Force
 
     Write-Host "Zip erstellt: $zipPath" -ForegroundColor Green
-    Write-Host "Diese Datei kannst du direkt auf CurseForge hochladen (enthaelt den Ordner '$AddonName' auf oberster Ebene)."
+    Write-Host "Diese Datei kannst du direkt auf CurseForge hochladen (enthält den Ordner '$AddonName' auf oberster Ebene)."
 }

@@ -1,25 +1,29 @@
 # EasyMakro
 
 Ein WoW Classic Era Addon (getestet auf Client-Version 1.15.9), das das
-Erstellen von Zauber-Makros per Mausklick statt per Handarbeit ermoeglicht.
+Erstellen von Zauber-Makros per Mausklick statt per Handarbeit ermöglicht.
 
 Kein Nachschlagen von `/cast`-Syntax, Mouseover-Bedingungen oder
 `/petattack`/`/startattack` mehr: EasyMakro zeigt dir alle aktuell
-erlernten Zauber (inklusive Begleiter-Zauber) sowie nuetzliche Befehle in
-einer Liste. Per Checkbox waehlst du aus, wie das Makro funktionieren soll,
+erlernten Zauber (inklusive Begleiter-Zauber) sowie nützliche Befehle in
+einer Liste. Per Checkbox wählst du aus, wie das Makro funktionieren soll,
 und EasyMakro erstellt daraus ein **echtes WoW-Makro** (inklusive Icon und
-Tooltip via `#showtooltip`), das du wie gewohnt aus dem Makro-Fenster in
-deine Aktionsleiste ziehen kannst.
+Tooltip via `#showtooltip`), das du direkt aus dem Addon-Fenster in deine
+Aktionsleiste ziehen kannst.
+
+Die Oberfläche folgt automatisch der Sprache deines WoW-Clients
+(`GetLocale()`); aktuell vollständig übersetzt sind Deutsch (`deDE`) und
+Englisch (Standard-Fallback für alle anderen Clients).
 
 ## Beispiel
 
 Schlangenbiss (Hunter) soll auf das aktuelle Ziel gewirkt werden, aber auf
-das Ziel unter dem Mauszeiger ausweichen, sobald man ueber ein anderes Ziel
+das Ziel unter dem Mauszeiger ausweichen, sobald man über ein anderes Ziel
 mouseovert:
 
-1. `/em` oder `/easymakro` oeffnet die Oberflaeche.
+1. `/em` oder `/easymakro` öffnet die Oberfläche.
 2. "Schlangenbiss" in der Liste anklicken.
-3. Haekchen bei **Mouseover-Ziel verwenden (Gegner)** setzen.
+3. Häkchen bei **Mouseover-Ziel verwenden (Gegner)** setzen.
 4. Auf **Makro erstellen** klicken.
 
 Erzeugt wird:
@@ -33,19 +37,19 @@ Erzeugt wird:
 
 - Liste aller aktuell erlernten (aktiven) Zauber des Charakters und seines
   Begleiters.
-- Zusaetzliche Befehle: Auto-Attack, Pet-Attack, Pet folgen, Zauber
+- Zusätzliche Befehle: Auto-Attack, Pet-Attack, Pet folgen, Zauber
   abbrechen, Ziel folgen.
-- Checkboxen fuer:
+- Checkboxen für:
   - Mouseover-Ziel (Gegner)
   - Mouseover-Ziel (Freund/Heilung)
   - Fallback auf sich selbst
-  - Auto-Attack (`/startattack`) davor einfuegen
-  - Pet zum Angriff schicken (`/petattack`) davor einfuegen
+  - Auto-Attack (`/startattack`) davor einfügen
+  - Pet zum Angriff schicken (`/petattack`) davor einfügen
   - Laufenden Zauber vorher abbrechen (`/stopcasting`)
-  - Makro nur fuer diesen Charakter statt allgemein speichern
+  - Makro nur für diesen Charakter statt allgemein speichern
 - Live-Vorschau des generierten Makrotexts.
-- Uebersicht aller mit EasyMakro erstellten Makros inklusive Bearbeiten und
-  Loeschen.
+- Übersicht aller mit EasyMakro erstellten Makros: anklicken lädt sie
+  zurück in den Editor, per Drag landen sie direkt auf einer Aktionsleiste.
 
 ## Installation (Entwicklung/Test)
 
@@ -55,10 +59,10 @@ scripts\Build.ps1
 
 Kopiert den Ordner `EasyMakro` in
 `D:\Games\World of Warcraft\_classic_era_\Interface\AddOns` und baut
-zusaetzlich ein releasefertiges Zip in `dist\`. Mit `-SkipZip` bzw.
-`-SkipInstall` laesst sich jeweils ein Schritt ueberspringen.
+zusätzlich ein releasefertiges Zip in `dist\`. Mit `-SkipZip` bzw.
+`-SkipInstall` lässt sich jeweils ein Schritt überspringen.
 
-## Release-Paket fuer CurseForge bauen
+## Release-Paket für CurseForge bauen
 
 ```powershell
 scripts\Build.ps1 -SkipInstall

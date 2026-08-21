@@ -62,7 +62,7 @@ function EM:GetKnownSpells()
 end
 
 -- Kombiniert die Befehle (Commands.lua) und die bekannten Zauber zu einer
--- einzigen, nach Typ und Name sortierten Liste fuer die UI.
+-- einzigen, nach Typ und Name sortierten Liste für die UI.
 function EM:GetAllListItems()
     local items = {}
 
