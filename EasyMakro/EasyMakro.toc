@@ -3,7 +3,7 @@
 ## Notes: Baue Zauber-Makros (Mouseover, Auto-Attack, Pet-Attack, ...) per Mausklick statt Handarbeit.
 ## Notes-deDE: Baue Zauber-Makros (Mouseover, Auto-Attack, Pet-Attack, ...) per Mausklick statt Handarbeit.
 ## Author: Stephan
-## Version: 1.0.0
+## Version: 1.0.1
 ## SavedVariables: EasyMakroDB
 ## IconTexture: Interface\Icons\INV_Misc_Note_06
 
