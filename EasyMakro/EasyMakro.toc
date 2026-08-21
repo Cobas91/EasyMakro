@@ -1,0 +1,14 @@
+## Interface: 11509
+## Title: EasyMakro
+## Notes: Baue Zauber-Makros (Mouseover, Auto-Attack, Pet-Attack, ...) per Mausklick statt Handarbeit.
+## Notes-deDE: Baue Zauber-Makros (Mouseover, Auto-Attack, Pet-Attack, ...) per Mausklick statt Handarbeit.
+## Author: Stephan
+## Version: 1.0.0
+## SavedVariables: EasyMakroDB
+## IconTexture: Interface\Icons\INV_Misc_Note_06
+
+Core.lua
+Commands.lua
+SpellData.lua
+MacroBuilder.lua
+UI.lua
