@@ -70,8 +70,12 @@ function EM:GetKnownSpells()
         local numPetSpells = HasPetSpells()
         if numPetSpells and numPetSpells > 0 then
             for i = 1, numPetSpells do
+                -- Pet-Spellbook-Eintraege liefern "PETACTION", nicht
+                -- "SPELL" (per "/em debug" verifiziert) - mit dem falschen
+                -- Vergleich wurden bisher alle Pet-Faehigkeiten (Growl,
+                -- Charge, ...) komplett aus der Liste gefiltert.
                 local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_PET)
-                if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_PET) then
+                if itemType == "PETACTION" and not IsPassive(i, BOOKTYPE_PET) then
                     local name = GetSpellBookItemName(i, BOOKTYPE_PET)
                     local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET)
                     if name and not seen[name] then

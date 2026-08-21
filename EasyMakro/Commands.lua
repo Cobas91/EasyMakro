@@ -13,7 +13,11 @@ EM.Commands = {
     {
         key = "PETATTACK",
         name = L.CMD_PETATTACK,
-        icon = "Interface\\Icons\\Ability_Hunter_Pet_Assist",
+        -- "Ability_Hunter_Pet_Assist" wurde erst in Mists of Pandaria
+        -- hinzugefuegt und existiert in Classic Era nicht (Icon blieb leer,
+        -- Makro-Icon liess sich dadurch nicht per Drag auf die Aktionsleiste
+        -- ziehen). 132270 = Growl, in Classic Era vorhanden.
+        icon = 132270,
         line = "/petattack",
     },
     {
@@ -25,13 +29,18 @@ EM.Commands = {
     {
         key = "FOLLOWTARGET",
         name = L.CMD_FOLLOWTARGET,
-        icon = "Interface\\Icons\\INV_Misc_Foot_Centaur",
+        -- "INV_Misc_Foot_Centaur" ist ebenfalls erst ab Mists of Pandaria
+        -- vorhanden. Ability_Tracking existiert seit Classic.
+        icon = "Interface\\Icons\\Ability_Tracking",
         line = "/follow target",
     },
     {
         key = "STOPCASTING",
         name = L.CMD_STOPCASTING,
-        icon = "Interface\\Icons\\Spell_Nature_Slow",
+        -- "Spell_Nature_Slow" liess sich nicht als existierendes
+        -- Classic-Icon verifizieren. Ability_Warrior_Disarm ist bestaetigt
+        -- seit Classic vorhanden.
+        icon = "Interface\\Icons\\Ability_Warrior_Disarm",
         line = "/stopcasting",
     },
 }
