@@ -37,7 +37,16 @@ function EM:BuildMacroBody(entry)
         table.insert(lines, "/stopcasting")
     end
     if opts.autoAttack then
-        table.insert(lines, "/startattack")
+        -- Hunter & Co: /startattack startet nur den Nahkampf-Schlag, nicht
+        -- Auto Shot. Ist ein Fernkampf-Autoattacke-Zauber bekannt, nutzen
+        -- wir den stattdessen - das ist es, was bei einer Fernkampf-Klasse
+        -- tatsaechlich gemeint ist.
+        local rangedName = self:GetRangedAutoAttackSpellName and self:GetRangedAutoAttackSpellName()
+        if rangedName then
+            table.insert(lines, "/cast " .. rangedName)
+        else
+            table.insert(lines, "/startattack")
+        end
     end
     if opts.petAttack then
         table.insert(lines, "/petattack")

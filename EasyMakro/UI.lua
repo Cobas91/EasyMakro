@@ -121,6 +121,8 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
     cbMouseoverHelp:SetChecked(opts.mouseoverHelp)
     cbSelfFallback:SetChecked(opts.selfFallback)
     cbAutoAttack:SetChecked(opts.autoAttack)
+    local rangedName = EM.GetRangedAutoAttackSpellName and EM:GetRangedAutoAttackSpellName()
+    cbAutoAttack.text:SetText(rangedName and string.format(L.CB_AUTOATTACK_RANGED, rangedName) or L.CB_AUTOATTACK)
     cbPetAttack:SetChecked(opts.petAttack)
     cbStopCasting:SetChecked(opts.stopCasting)
     -- Default ist "pro Charakter" (Checkbox aus); nur explizit als global

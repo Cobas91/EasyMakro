@@ -119,6 +119,12 @@ local function FindRangedAutoAttackSpell()
     return nil
 end
 
+-- Oeffentlicher Zugriff fuer MacroBuilder/UI: Name des
+-- Fernkampf-Autoattacke-Zaubers, falls der Charakter einen hat.
+function EM:GetRangedAutoAttackSpellName()
+    return (FindRangedAutoAttackSpell())
+end
+
 -- Kombiniert die Befehle (Commands.lua), den dynamisch gefundenen
 -- Fernkampf-Autoattacke-Befehl und die bekannten Zauber zu einer
 -- einzigen, nach Typ und Name sortierten Liste für die UI.
