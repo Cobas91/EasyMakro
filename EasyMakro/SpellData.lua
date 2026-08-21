@@ -1,4 +1,5 @@
 local ADDON_NAME, EM = ...
+local L = EM.L
 
 local function IsPassive(index, bookType)
     return IsPassiveSpell and IsPassiveSpell(index, bookType)
@@ -92,7 +93,34 @@ function EM:GetKnownSpells()
     return spells
 end
 
--- Kombiniert die Befehle (Commands.lua) und die bekannten Zauber zu einer
+-- Sucht im Spellbook nach dem Fernkampf-Autoattacke-Zauber (Auto Shot bei
+-- Hunter, Shoot bei anderen Klassen mit Fernwaffe). Die eingebaute API
+-- IsRangedAutoAttackSpell identifiziert ihn unabhaengig von Klasse und
+-- Client-Sprache, sodass wir den Namen nicht selbst uebersetzen muessen.
+local function FindRangedAutoAttackSpell()
+    if not IsRangedAutoAttackSpell then return nil end
+
+    local numTabs = GetNumSpellTabs()
+    for tabIndex = 1, numTabs do
+        local _, _, offset, numSlots = GetSpellTabInfo(tabIndex)
+        offset = offset or 0
+        numSlots = numSlots or 0
+        for i = offset + 1, offset + numSlots do
+            local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
+            if itemType == "SPELL" and spellID and IsRangedAutoAttackSpell(spellID) then
+                local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+                local icon = GetSpellBookItemTexture(i, BOOKTYPE_SPELL)
+                if name then
+                    return name, icon
+                end
+            end
+        end
+    end
+    return nil
+end
+
+-- Kombiniert die Befehle (Commands.lua), den dynamisch gefundenen
+-- Fernkampf-Autoattacke-Befehl und die bekannten Zauber zu einer
 -- einzigen, nach Typ und Name sortierten Liste für die UI.
 function EM:GetAllListItems()
     local items = {}
@@ -103,6 +131,18 @@ function EM:GetAllListItems()
             name = cmd.name,
             icon = cmd.icon,
             commandKey = cmd.key,
+        })
+    end
+
+    local autoShotName, autoShotIcon = FindRangedAutoAttackSpell()
+    if autoShotName then
+        table.insert(items, {
+            kind = "command",
+            name = string.format(L.CMD_AUTOSHOT_LABEL, autoShotName),
+            icon = autoShotIcon,
+            commandKey = "AUTOSHOT",
+            commandLine = "/cast " .. autoShotName,
+            commandName = string.format(L.CMD_AUTOSHOT_LABEL, autoShotName),
         })
     end
 

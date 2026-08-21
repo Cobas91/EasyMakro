@@ -17,7 +17,9 @@ end
 -- entry = {
 --   kind = "spell" | "command",
 --   spellName, spellID,      -- für kind == "spell"
---   commandKey,               -- für kind == "command"
+--   commandKey, commandLine,  -- für kind == "command" (commandLine
+--                              -- überschreibt die Zeile aus Commands.lua,
+--                              -- z.B. für dynamisch ermittelte Befehle)
 --   opts = {
 --     mouseoverHarm, mouseoverHelp, selfFallback,
 --     autoAttack, petAttack, stopCasting,
@@ -61,9 +63,13 @@ function EM:BuildMacroBody(entry)
             table.insert(lines, "/cast [" .. table.concat(conditions, "][") .. "] " .. entry.spellName)
         end
     elseif entry.kind == "command" then
-        local cmd = self:GetCommandByKey(entry.commandKey)
-        if cmd then
-            table.insert(lines, cmd.line)
+        local line = entry.commandLine
+        if not line then
+            local cmd = self:GetCommandByKey(entry.commandKey)
+            line = cmd and cmd.line
+        end
+        if line then
+            table.insert(lines, line)
         end
     end
 
@@ -111,7 +117,7 @@ function EM:SaveMacro(entry, existingName)
     local defaultBaseName = entry.spellName
     if entry.kind == "command" then
         local cmd = self:GetCommandByKey(entry.commandKey)
-        defaultBaseName = cmd and cmd.name or "EasyMakro"
+        defaultBaseName = (cmd and cmd.name) or entry.commandName or "EasyMakro"
     end
 
     local requestedName = (entry.customName and entry.customName ~= "") and entry.customName or defaultBaseName
@@ -150,6 +156,8 @@ function EM:SaveMacro(entry, existingName)
         spellName = entry.spellName,
         spellID = entry.spellID,
         commandKey = entry.commandKey,
+        commandLine = entry.commandLine,
+        commandName = entry.commandName,
         opts = CopyOpts(entry.opts),
         perChar = entry.perChar and true or false,
         icon = entry.icon,

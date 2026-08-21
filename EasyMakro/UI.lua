@@ -67,6 +67,8 @@ local function BuildCurrentEntry()
         spellName = selectedItem.name,
         spellID = selectedItem.spellID,
         commandKey = selectedItem.commandKey,
+        commandLine = selectedItem.commandLine,
+        commandName = selectedItem.name,
         icon = selectedItem.icon,
         opts = GatherOpts(),
         perChar = not cbGlobal:GetChecked(),
@@ -227,6 +229,15 @@ local function FindItemForMacro(data)
         local cmd = EM:GetCommandByKey(data.commandKey)
         if cmd then
             return { kind = "command", name = cmd.name, icon = cmd.icon, commandKey = cmd.key }
+        end
+        if data.commandLine then
+            return {
+                kind = "command",
+                name = data.commandName or data.commandKey,
+                icon = data.icon,
+                commandKey = data.commandKey,
+                commandLine = data.commandLine,
+            }
         end
     else
         for _, item in ipairs(allItems) do
