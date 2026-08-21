@@ -19,7 +19,7 @@ local editingMacroName = nil
 
 local iconTex, nameLabel, kindLabel
 local cbMouseoverHarm, cbMouseoverHelp, cbSelfFallback
-local cbAutoAttack, cbPetAttack, cbStopCasting, cbPerChar
+local cbAutoAttack, cbPetAttack, cbStopCasting, cbGlobal
 local nameEdit, previewBox, saveButton, statusText
 local searchBox, listScroll, listContent
 local macroScroll, macroContent, macroHeader
@@ -69,7 +69,7 @@ local function BuildCurrentEntry()
         commandKey = selectedItem.commandKey,
         icon = selectedItem.icon,
         opts = GatherOpts(),
-        perChar = cbPerChar:GetChecked() and true or false,
+        perChar = not cbGlobal:GetChecked(),
         customName = nameEdit:GetText(),
     }
 end
@@ -121,7 +121,9 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
     cbAutoAttack:SetChecked(opts.autoAttack)
     cbPetAttack:SetChecked(opts.petAttack)
     cbStopCasting:SetChecked(opts.stopCasting)
-    cbPerChar:SetChecked(storedPerChar)
+    -- Default ist "pro Charakter" (Checkbox aus); nur explizit als global
+    -- gespeicherte Makros zeigen die Checkbox angehakt.
+    cbGlobal:SetChecked(storedPerChar == false)
 
     -- Mouseover-/Selbst-Optionen ergeben nur bei echten Zaubern Sinn.
     local isSpell = item.kind == "spell"
@@ -452,11 +454,11 @@ local function BuildFrame()
         cb:SetScript("OnClick", UpdatePreview)
     end
 
-    cbPerChar = CreateCheckbox(rightPanel, L.CB_PERCHAR)
-    cbPerChar:SetPoint("TOPLEFT", cbStopCasting, "BOTTOMLEFT", 0, -10)
+    cbGlobal = CreateCheckbox(rightPanel, L.CB_GLOBAL)
+    cbGlobal:SetPoint("TOPLEFT", cbStopCasting, "BOTTOMLEFT", 0, -10)
 
     local nameLbl = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-    nameLbl:SetPoint("TOPLEFT", cbPerChar, "BOTTOMLEFT", 2, -12)
+    nameLbl:SetPoint("TOPLEFT", cbGlobal, "BOTTOMLEFT", 2, -12)
     nameLbl:SetText(L.MACRO_NAME_LABEL)
 
     nameEdit = CreateFrame("EditBox", nil, rightPanel, "InputBoxTemplate")
