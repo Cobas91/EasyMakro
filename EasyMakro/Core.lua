@@ -20,6 +20,10 @@ loader:SetScript("OnEvent", function(self, event, loadedAddon)
     end
     EM.db = EasyMakroDB
 
+    if EM.InitMinimapButton then
+        EM.InitMinimapButton()
+    end
+
     self:UnregisterEvent("ADDON_LOADED")
 end)
 

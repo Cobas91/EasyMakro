@@ -13,3 +13,4 @@ Commands.lua
 SpellData.lua
 MacroBuilder.lua
 UI.lua
+MinimapButton.lua

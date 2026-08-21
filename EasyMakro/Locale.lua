@@ -41,6 +41,8 @@ L.CMD_PETATTACK = "Pet: attack"
 L.CMD_PETFOLLOW = "Pet: follow"
 L.CMD_FOLLOWTARGET = "Follow target"
 L.CMD_STOPCASTING = "Cancel cast"
+L.MINIMAP_TOOLTIP_LEFT = "Left-click: open EasyMakro"
+L.MINIMAP_TOOLTIP_RIGHT = "Right-click: open the macro window"
 
 local locale = GetLocale()
 
@@ -81,4 +83,6 @@ if locale == "deDE" then
     L.CMD_PETFOLLOW = "Begleiter: Folgen"
     L.CMD_FOLLOWTARGET = "Ziel folgen"
     L.CMD_STOPCASTING = "Zauber abbrechen"
+    L.MINIMAP_TOOLTIP_LEFT = "Linksklick: EasyMakro öffnen"
+    L.MINIMAP_TOOLTIP_RIGHT = "Rechtsklick: Makro-Fenster öffnen"
 end
