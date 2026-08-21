@@ -93,13 +93,18 @@ function EM:GetKnownSpells()
     return spells
 end
 
--- Sucht im Spellbook nach dem Fernkampf-Autoattacke-Zauber (Auto Shot bei
--- Hunter, Shoot bei anderen Klassen mit Fernwaffe). Die eingebaute API
--- IsRangedAutoAttackSpell identifiziert ihn unabhaengig von Klasse und
--- Client-Sprache, sodass wir den Namen nicht selbst uebersetzen muessen.
-local function FindRangedAutoAttackSpell()
-    if not IsRangedAutoAttackSpell then return nil end
+-- Fernkampf-Autoattacke-Zauber in Classic Era: Auto Shot (Hunter) und Shoot
+-- (Zauberstab, alle anderen Klassen). Per "/em debug" gegen einen echten
+-- Client verifizierte, feste Spell-IDs - die eigentlich passende API
+-- (IsRangedAutoAttackSpell) existiert in Classic Era trotz Doku schlicht
+-- nicht (type nil im Debug-Dump). Spell-IDs sind sprachunabhaengig, wir
+-- brauchen also keine Uebersetzung der Namen.
+local RANGED_AUTO_ATTACK_SPELL_IDS = {
+    [75] = true,   -- Auto Shot
+    [5019] = true, -- Shoot (Zauberstab)
+}
 
+local function FindRangedAutoAttackSpell()
     local numTabs = GetNumSpellTabs()
     for tabIndex = 1, numTabs do
         local _, _, offset, numSlots = GetSpellTabInfo(tabIndex)
@@ -107,7 +112,7 @@ local function FindRangedAutoAttackSpell()
         numSlots = numSlots or 0
         for i = offset + 1, offset + numSlots do
             local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
-            if itemType == "SPELL" and spellID and IsRangedAutoAttackSpell(spellID) then
+            if itemType == "SPELL" and spellID and RANGED_AUTO_ATTACK_SPELL_IDS[spellID] then
                 local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
                 local icon = GetSpellBookItemTexture(i, BOOKTYPE_SPELL)
                 if name then
