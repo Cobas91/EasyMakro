@@ -37,7 +37,12 @@ function EM:GetKnownSpells()
         local tabName, _, offset, numSlots = GetSpellTabInfo(tabIndex)
         offset = offset or 0
         numSlots = numSlots or 0
-        if not professionTabs[tabName] then
+        -- TEMP: Berufsfilter deaktiviert, bis "/em debug" bestaetigt hat,
+        -- welches Feld Berufe zuverlaessig von Klassen-Tabs unterscheidet.
+        -- Vorher: professionTabs[tabName] hat das Gegenteil des Erwarteten
+        -- gefiltert (nur Berufe blieben uebrig).
+        local isProfessionTab = false
+        if not isProfessionTab then
             for i = offset + 1, offset + numSlots do
                 local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
                 if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_SPELL) then
