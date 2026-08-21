@@ -3,7 +3,8 @@ local ADDON_NAME, EM = ...
 EM.UI = {}
 
 local FRAME_WIDTH, FRAME_HEIGHT = 780, 560
-local ROW_HEIGHT = 20
+local ROW_HEIGHT = 24
+local ROW_ICON_SIZE = 20
 
 local frame
 local listRows = {}
@@ -158,10 +159,11 @@ local function LayoutListRows()
             row:SetPoint("LEFT", listContent, "LEFT", 0, 0)
 
             row.icon = row:CreateTexture(nil, "ARTWORK")
-            row.icon:SetSize(16, 16)
+            row.icon:SetSize(ROW_ICON_SIZE, ROW_ICON_SIZE)
             row.icon:SetPoint("LEFT", 2, 0)
+            row.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-            row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
             row.text:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
             row.text:SetPoint("RIGHT", -2, 0)
             row.text:SetJustifyH("LEFT")
@@ -275,10 +277,11 @@ local function LayoutMacroRows()
             row:SetPoint("RIGHT", macroContent, "RIGHT", -4, 0)
 
             row.icon = row:CreateTexture(nil, "ARTWORK")
-            row.icon:SetSize(16, 16)
+            row.icon:SetSize(ROW_ICON_SIZE, ROW_ICON_SIZE)
             row.icon:SetPoint("LEFT", 2, 0)
+            row.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-            row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+            row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
             row.text:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
             row.text:SetJustifyH("LEFT")
             row.text:SetWidth(220)
@@ -364,8 +367,11 @@ local function BuildFrame()
     listScroll:SetPoint("BOTTOMRIGHT", -26, 2)
 
     listContent = CreateFrame("Frame", nil, listScroll)
-    listContent:SetSize(1, 1)
+    listContent:SetSize(listScroll:GetWidth(), 1)
     listScroll:SetScrollChild(listContent)
+    listScroll:SetScript("OnSizeChanged", function(self, w)
+        listContent:SetWidth(w)
+    end)
 
     ----------------------------------------------------------------
     -- Rechte Spalte: Builder
@@ -507,8 +513,11 @@ local function BuildFrame()
     macroScroll:SetPoint("BOTTOMRIGHT", -26, 4)
 
     macroContent = CreateFrame("Frame", nil, macroScroll)
-    macroContent:SetSize(1, 1)
+    macroContent:SetSize(macroScroll:GetWidth(), 1)
     macroScroll:SetScrollChild(macroContent)
+    macroScroll:SetScript("OnSizeChanged", function(self, w)
+        macroContent:SetWidth(w)
+    end)
 
     RefreshSpellList()
     LayoutMacroRows()
