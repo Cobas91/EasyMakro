@@ -2,7 +2,8 @@ local ADDON_NAME, EM = ...
 
 EM.UI = {}
 
-local FRAME_WIDTH, FRAME_HEIGHT = 780, 560
+local FRAME_WIDTH, FRAME_HEIGHT = 780, 780
+local TOP_AREA_HEIGHT = 520
 local ROW_HEIGHT = 24
 local ROW_ICON_SIZE = 20
 
@@ -18,7 +19,7 @@ local editingMacroName = nil
 local iconTex, nameLabel, kindLabel
 local cbMouseoverHarm, cbMouseoverHelp, cbSelfFallback
 local cbAutoAttack, cbPetAttack, cbStopCasting, cbPerChar
-local nameEdit, previewBox, saveButton, cancelButton, statusText
+local nameEdit, previewBox, saveButton, statusText
 local searchBox, listScroll, listContent
 local macroScroll, macroContent, macroHeader
 
@@ -40,6 +41,7 @@ local checkboxCounter = 0
 local function CreateCheckbox(parent, label)
     checkboxCounter = checkboxCounter + 1
     local cb = CreateFrame("CheckButton", "EasyMakroCheck" .. checkboxCounter, parent, "UICheckButtonTemplate")
+    cb:SetSize(20, 20)
     cb.text = _G[cb:GetName() .. "Text"]
     cb.text:SetText(label)
     cb.text:SetFontObject("GameFontHighlightSmall")
@@ -103,7 +105,6 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
         kindLabel:SetText("")
         nameEdit:SetText("")
         saveButton:SetEnabled(false)
-        cancelButton:Hide()
         previewBox:SetText("")
         return
     end
@@ -135,7 +136,6 @@ local function RefreshBuilderPanel(item, macroName, storedOpts, storedPerChar)
     nameEdit:SetText(macroName or EM:MakeUniqueMacroName(item.name))
     saveButton:SetEnabled(true)
     saveButton:SetText(macroName and "Makro aktualisieren" or "Makro erstellen")
-    cancelButton:SetShown(macroName ~= nil)
 
     SetStatus("")
     UpdatePreview()
@@ -175,6 +175,7 @@ local function LayoutListRows()
 
             row:SetScript("OnClick", function(self)
                 RefreshBuilderPanel(self.item)
+                EM.UI.RefreshMacroList()
             end)
             row:SetScript("OnEnter", function(self) self.highlight:Show() end)
             row:SetScript("OnLeave", function(self) self.highlight:Hide() end)
@@ -271,30 +272,58 @@ local function LayoutMacroRows()
         local data = EM.db.macros[name]
         local row = macroRows[i]
         if not row then
-            row = CreateFrame("Frame", nil, macroContent)
+            row = CreateFrame("Button", nil, macroContent)
             row:SetHeight(ROW_HEIGHT)
             row:SetPoint("LEFT", macroContent, "LEFT", 0, 0)
             row:SetPoint("RIGHT", macroContent, "RIGHT", -4, 0)
+            row:RegisterForClicks("LeftButtonUp")
+            row:RegisterForDrag("LeftButton")
+
+            row.selectedTex = row:CreateTexture(nil, "BACKGROUND")
+            row.selectedTex:SetAllPoints()
+            row.selectedTex:SetColorTexture(1, 0.82, 0, 0.18)
+            row.selectedTex:Hide()
+
+            row.hoverTex = row:CreateTexture(nil, "BACKGROUND", nil, 1)
+            row.hoverTex:SetAllPoints()
+            row.hoverTex:SetColorTexture(1, 1, 1, 0.10)
+            row.hoverTex:Hide()
 
             row.icon = row:CreateTexture(nil, "ARTWORK")
             row.icon:SetSize(ROW_ICON_SIZE, ROW_ICON_SIZE)
             row.icon:SetPoint("LEFT", 2, 0)
             row.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
+            row.deleteBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
+            row.deleteBtn:SetSize(70, 18)
+            row.deleteBtn:SetPoint("RIGHT", -4, 0)
+            row.deleteBtn:SetText("Loeschen")
+
             row.text = row:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
             row.text:SetPoint("LEFT", row.icon, "RIGHT", 6, 0)
+            row.text:SetPoint("RIGHT", row.deleteBtn, "LEFT", -6, 0)
             row.text:SetJustifyH("LEFT")
-            row.text:SetWidth(220)
 
-            row.editBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-            row.editBtn:SetSize(90, 18)
-            row.editBtn:SetPoint("RIGHT", -96, 0)
-            row.editBtn:SetText("Bearbeiten")
-
-            row.deleteBtn = CreateFrame("Button", nil, row, "UIPanelButtonTemplate")
-            row.deleteBtn:SetSize(90, 18)
-            row.deleteBtn:SetPoint("RIGHT", -2, 0)
-            row.deleteBtn:SetText("Loeschen")
+            row:SetScript("OnEnter", function(self)
+                self.hoverTex:Show()
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                GameTooltip:SetText(self.macroName, 1, 1, 1)
+                local data = EM.db.macros[self.macroName]
+                if data then
+                    GameTooltip:AddLine(EM:BuildMacroBody(data), 0.8, 0.8, 0.8, true)
+                end
+                GameTooltip:AddLine(" ")
+                GameTooltip:AddLine("Klick: In den Editor laden", 0.6, 1, 0.6)
+                GameTooltip:AddLine("Ziehen: Auf eine Aktionsleiste legen", 0.6, 1, 0.6)
+                GameTooltip:Show()
+            end)
+            row:SetScript("OnLeave", function(self)
+                self.hoverTex:Hide()
+                GameTooltip:Hide()
+            end)
+            row:SetScript("OnDragStart", function(self)
+                PickupMacro(self.macroName)
+            end)
 
             macroRows[i] = row
         end
@@ -303,10 +332,12 @@ local function LayoutMacroRows()
         SetIconTexture(row.icon, data.icon)
         local suffix = data.perChar and " |cff999999(Charakter)|r" or " |cff999999(Allgemein)|r"
         row.text:SetText(name .. suffix)
+        row.selectedTex:SetShown(editingMacroName == name)
 
-        row.editBtn:SetScript("OnClick", function()
+        row:SetScript("OnClick", function(self)
             local item = FindItemForMacro(data)
             RefreshBuilderPanel(item, name, data.opts, data.perChar)
+            LayoutMacroRows()
         end)
         row.deleteBtn:SetScript("OnClick", function()
             StaticPopup_Show("EASYMAKRO_DELETE_MACRO", name, nil, name)
@@ -349,7 +380,7 @@ local function BuildFrame()
     ----------------------------------------------------------------
     local leftPanel = CreateFrame("Frame", nil, frame)
     leftPanel:SetPoint("TOPLEFT", 12, -32)
-    leftPanel:SetSize(300, FRAME_HEIGHT - 210)
+    leftPanel:SetSize(300, TOP_AREA_HEIGHT)
 
     searchBox = CreateFrame("EditBox", nil, leftPanel, "InputBoxTemplate")
     searchBox:SetSize(270, 20)
@@ -378,7 +409,8 @@ local function BuildFrame()
     ----------------------------------------------------------------
     local rightPanel = CreateFrame("Frame", nil, frame)
     rightPanel:SetPoint("TOPLEFT", leftPanel, "TOPRIGHT", 16, 0)
-    rightPanel:SetPoint("BOTTOMRIGHT", -12, 210)
+    rightPanel:SetPoint("BOTTOMLEFT", leftPanel, "BOTTOMRIGHT", 16, 0)
+    rightPanel:SetPoint("RIGHT", frame, "RIGHT", -12, 0)
 
     iconTex = rightPanel:CreateTexture(nil, "ARTWORK")
     iconTex:SetSize(36, 36)
@@ -442,7 +474,7 @@ local function BuildFrame()
     local previewBackdrop = CreateFrame("Frame", nil, rightPanel, "InsetFrameTemplate")
     previewBackdrop:SetPoint("TOPLEFT", previewLbl, "BOTTOMLEFT", -2, -4)
     previewBackdrop:SetPoint("RIGHT", -4, 0)
-    previewBackdrop:SetHeight(90)
+    previewBackdrop:SetHeight(70)
 
     previewBox = CreateFrame("EditBox", nil, previewBackdrop)
     previewBox:SetMultiLine(true)
@@ -476,18 +508,9 @@ local function BuildFrame()
             SetStatus(err, true)
             return
         end
-        SetStatus("Gespeichert als '" .. name .. "'. Zieh das Icon aus deinem Makro-Fenster (/macro) in die Aktionsleiste.")
+        SetStatus("Gespeichert als '" .. name .. "'. Zieh das Icon unten links direkt in deine Aktionsleiste.")
         EM.UI.RefreshMacroList()
         RefreshBuilderPanel(selectedItem, name, entry.opts, entry.perChar)
-    end)
-
-    cancelButton = CreateFrame("Button", nil, rightPanel, "UIPanelButtonTemplate")
-    cancelButton:SetSize(150, 24)
-    cancelButton:SetPoint("LEFT", saveButton, "RIGHT", 8, 0)
-    cancelButton:SetText("Neues Makro")
-    cancelButton:Hide()
-    cancelButton:SetScript("OnClick", function()
-        RefreshBuilderPanel(selectedItem, nil, nil, nil)
     end)
 
     statusText = rightPanel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
