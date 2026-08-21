@@ -41,7 +41,7 @@ function EM:BuildMacroBody(entry)
         -- Auto Shot. Ist ein Fernkampf-Autoattacke-Zauber bekannt, nutzen
         -- wir den stattdessen - das ist es, was bei einer Fernkampf-Klasse
         -- tatsaechlich gemeint ist.
-        local rangedName = self:GetRangedAutoAttackSpellName and self:GetRangedAutoAttackSpellName()
+        local rangedName = self.GetRangedAutoAttackSpellName and self:GetRangedAutoAttackSpellName()
         if rangedName then
             table.insert(lines, "/cast " .. rangedName)
         else
