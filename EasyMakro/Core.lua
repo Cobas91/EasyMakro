@@ -64,6 +64,26 @@ local function RunDebugDump()
             end
         end
     end
+
+    DebugDump("--- Pet spellbook ---")
+    if not HasPetSpells then
+        DebugDump("HasPetSpells does not exist")
+    else
+        local numPetSpells, petToken = HasPetSpells()
+        DebugDump(string.format("numPetSpells=%s petToken=%s", tostring(numPetSpells), tostring(petToken)))
+        if numPetSpells and numPetSpells > 0 then
+            for i = 1, numPetSpells do
+                local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_PET)
+                local name = GetSpellBookItemName(i, BOOKTYPE_PET)
+                local icon = GetSpellBookItemTexture(i, BOOKTYPE_PET)
+                local passive = IsPassiveSpell and IsPassiveSpell(i, BOOKTYPE_PET)
+                DebugDump(string.format(
+                    "pet %d: itemType=%s spellID=%s name='%s' icon=%s (type %s) passive=%s",
+                    i, tostring(itemType), tostring(spellID), tostring(name), tostring(icon), type(icon), tostring(passive)
+                ))
+            end
+        end
+    end
 end
 
 SLASH_EASYMAKRO1 = "/easymakro"
