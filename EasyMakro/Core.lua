@@ -48,6 +48,22 @@ local function RunDebugDump()
         local skillName, isHeader = GetSkillLineInfo(i)
         DebugDump(string.format("Skill %d: name='%s' isHeader=%s", i, tostring(skillName), tostring(isHeader)))
     end
+
+    DebugDump("--- IsRangedAutoAttackSpell ---")
+    DebugDump("exists: " .. tostring(IsRangedAutoAttackSpell) .. " (type " .. type(IsRangedAutoAttackSpell) .. ")")
+    for tabIndex = 1, numTabs do
+        local _, _, offset, numSlots = GetSpellTabInfo(tabIndex)
+        offset = offset or 0
+        numSlots = numSlots or 0
+        for i = offset + 1, offset + numSlots do
+            local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
+            if itemType == "SPELL" and spellID then
+                local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+                local ok, result = pcall(IsRangedAutoAttackSpell, spellID)
+                DebugDump(string.format("spellID=%d name='%s' -> ok=%s result=%s", spellID, tostring(name), tostring(ok), tostring(result)))
+            end
+        end
+    end
 end
 
 SLASH_EASYMAKRO1 = "/easymakro"
