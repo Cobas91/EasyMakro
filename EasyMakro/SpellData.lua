@@ -4,20 +4,28 @@ local function IsPassive(index, bookType)
     return IsPassiveSpell and IsPassiveSpell(index, bookType)
 end
 
--- Namen aller Einträge in der Skill-Liste des Charakters (Waffen-Skills,
--- Sprachen, Berufe, ...), ohne die Kategorie-Überschriften selbst.
--- Spellbook-Tabs für Klassen/Talentbäume (General, Marksmanship, ...) sind
--- NIE Teil dieser Skill-Liste - nur Berufe (Primär, Sekundär, Sammelberufe
--- wie Bergbau/Kürschnern) tauchen dort UND als eigener Spellbook-Tab auf.
--- Der reine Namensabgleich reicht daher aus, um Berufs-Tabs zuverlässig zu
--- erkennen, ohne auf eine Kategorie-Überschrift oder ein "verlernbar"-Flag
+-- Laut "/em debug"-Auswertung haben Berufe in Classic Era gar keinen
+-- eigenen Spellbook-Tab - Leatherworking/Skinning stecken als ganz normale
+-- Eintraege mit im "General"-Tab, zusammen mit Attack/Auto Shot & Co. Ein
+-- Filter auf Tab-Ebene kann sie deshalb prinzipiell nicht treffen; wir
+-- brauchen die Namen einzeln, um sie unten pro Spell auszusortieren.
+--
+-- Die Kategorie "Class Skills" (Talentbaum-Namen wie Beast
+-- Mastery/Marksmanship/Survival) steht laut Debug-Dump IMMER als erste
+-- Kategorie in der Skill-Liste, gefolgt von Professions/Weapon
+-- Skills/Armor Proficiencies/Languages. Wir ueberspringen deshalb nur die
+-- erste Kategorie und sammeln die Namen aller danach folgenden Skills -
+-- das deckt Berufe ab, ohne auf einen lokalisierten Kategorie-Text
 -- angewiesen zu sein.
-local function GetProfessionTabNames()
+local function GetProfessionSkillNames()
     local names = {}
     local numSkills = GetNumSkillLines and GetNumSkillLines() or 0
+    local headerCount = 0
     for i = 1, numSkills do
         local skillName, isHeader = GetSkillLineInfo(i)
-        if not isHeader and skillName then
+        if isHeader then
+            headerCount = headerCount + 1
+        elseif headerCount > 1 and skillName then
             names[skillName] = true
         end
     end
@@ -25,39 +33,33 @@ local function GetProfessionTabNames()
 end
 
 -- Liefert alle aktuell erlernten, aktiven (nicht-passiven) Zauber des
--- Spielers sowie ggf. des aktuellen Begleiters. Berufs-Tabs (Alchemie,
--- Erste Hilfe, Kürschnern, ...) werden ausgeklammert.
+-- Spielers sowie ggf. des aktuellen Begleiters. Berufs-Faehigkeiten
+-- (Alchemie, Erste Hilfe, Kuerschnern, ...) werden ausgeklammert, auch
+-- wenn sie im selben Tab wie z.B. Attack/Auto Shot stecken.
 function EM:GetKnownSpells()
     local spells = {}
     local seen = {}
-    local professionTabs = GetProfessionTabNames()
+    local professionNames = GetProfessionSkillNames()
 
     local numTabs = GetNumSpellTabs()
     for tabIndex = 1, numTabs do
-        local tabName, _, offset, numSlots = GetSpellTabInfo(tabIndex)
+        local _, _, offset, numSlots = GetSpellTabInfo(tabIndex)
         offset = offset or 0
         numSlots = numSlots or 0
-        -- TEMP: Berufsfilter deaktiviert, bis "/em debug" bestaetigt hat,
-        -- welches Feld Berufe zuverlaessig von Klassen-Tabs unterscheidet.
-        -- Vorher: professionTabs[tabName] hat das Gegenteil des Erwarteten
-        -- gefiltert (nur Berufe blieben uebrig).
-        local isProfessionTab = false
-        if not isProfessionTab then
-            for i = offset + 1, offset + numSlots do
-                local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
-                if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_SPELL) then
-                    local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+        for i = offset + 1, offset + numSlots do
+            local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
+            if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_SPELL) then
+                local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+                if name and not professionNames[name] and not seen[name] then
+                    seen[name] = true
                     local icon = GetSpellBookItemTexture(i, BOOKTYPE_SPELL)
-                    if name and not seen[name] then
-                        seen[name] = true
-                        table.insert(spells, {
-                            kind = "spell",
-                            name = name,
-                            icon = icon,
-                            spellID = spellID,
-                            isPet = false,
-                        })
-                    end
+                    table.insert(spells, {
+                        kind = "spell",
+                        name = name,
+                        icon = icon,
+                        spellID = spellID,
+                        isPet = false,
+                    })
                 end
             end
         end
