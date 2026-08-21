@@ -4,18 +4,20 @@ local function IsPassive(index, bookType)
     return IsPassiveSpell and IsPassiveSpell(index, bookType)
 end
 
--- Namen aller Berufe (Primär-, Sekundär- und Sammelberufe wie Bergbau,
--- Kräuterkunde, Kürschnern). Im Skills-Fenster sind genau diese Skills
--- "verlernbar" (isAbandonable) - Waffen-Skills und Sprachen sind es nicht.
--- Damit lassen sich Berufs-Spellbook-Tabs zuverlässig erkennen, ohne auf
--- eine (in Classic nicht vorhandene) Kategorie-Überschrift angewiesen zu
--- sein.
+-- Namen aller Einträge in der Skill-Liste des Charakters (Waffen-Skills,
+-- Sprachen, Berufe, ...), ohne die Kategorie-Überschriften selbst.
+-- Spellbook-Tabs für Klassen/Talentbäume (General, Marksmanship, ...) sind
+-- NIE Teil dieser Skill-Liste - nur Berufe (Primär, Sekundär, Sammelberufe
+-- wie Bergbau/Kürschnern) tauchen dort UND als eigener Spellbook-Tab auf.
+-- Der reine Namensabgleich reicht daher aus, um Berufs-Tabs zuverlässig zu
+-- erkennen, ohne auf eine Kategorie-Überschrift oder ein "verlernbar"-Flag
+-- angewiesen zu sein.
 local function GetProfessionTabNames()
     local names = {}
     local numSkills = GetNumSkillLines and GetNumSkillLines() or 0
     for i = 1, numSkills do
-        local skillName, isHeader, _, _, _, _, _, isAbandonable = GetSkillLineInfo(i)
-        if not isHeader and isAbandonable and skillName then
+        local skillName, isHeader = GetSkillLineInfo(i)
+        if not isHeader and skillName then
             names[skillName] = true
         end
     end
