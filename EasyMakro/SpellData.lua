@@ -4,31 +4,54 @@ local function IsPassive(index, bookType)
     return IsPassiveSpell and IsPassiveSpell(index, bookType)
 end
 
+-- Namen aller Skills, die im Skills-Fenster unter der Kategorie
+-- "Berufe"/"Professions" stehen (Primär- und Sekundärberufe sowie
+-- Sammelberufe wie Bergbau/Kräuterkunde/Kürschnern). Ihre Spellbook-Tabs
+-- werden aus der Zauberliste ausgeschlossen.
+local function GetProfessionTabNames()
+    local names = {}
+    local numSkills = GetNumSkillLines and GetNumSkillLines() or 0
+    local inProfessions = false
+    for i = 1, numSkills do
+        local skillName, isHeader = GetSkillLineInfo(i)
+        if isHeader then
+            inProfessions = (skillName == PROFESSIONS)
+        elseif inProfessions and skillName then
+            names[skillName] = true
+        end
+    end
+    return names
+end
+
 -- Liefert alle aktuell erlernten, aktiven (nicht-passiven) Zauber des
--- Spielers sowie ggf. des aktuellen Begleiters.
+-- Spielers sowie ggf. des aktuellen Begleiters. Berufs-Tabs (Alchemie,
+-- Erste Hilfe, Kürschnern, ...) werden ausgeklammert.
 function EM:GetKnownSpells()
     local spells = {}
     local seen = {}
+    local professionTabs = GetProfessionTabNames()
 
     local numTabs = GetNumSpellTabs()
     for tabIndex = 1, numTabs do
-        local _, _, offset, numSlots = GetSpellTabInfo(tabIndex)
+        local tabName, _, offset, numSlots = GetSpellTabInfo(tabIndex)
         offset = offset or 0
         numSlots = numSlots or 0
-        for i = offset + 1, offset + numSlots do
-            local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
-            if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_SPELL) then
-                local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
-                local icon = GetSpellBookItemTexture(i, BOOKTYPE_SPELL)
-                if name and not seen[name] then
-                    seen[name] = true
-                    table.insert(spells, {
-                        kind = "spell",
-                        name = name,
-                        icon = icon,
-                        spellID = spellID,
-                        isPet = false,
-                    })
+        if not professionTabs[tabName] then
+            for i = offset + 1, offset + numSlots do
+                local itemType, spellID = GetSpellBookItemInfo(i, BOOKTYPE_SPELL)
+                if itemType == "SPELL" and not IsPassive(i, BOOKTYPE_SPELL) then
+                    local name = GetSpellBookItemName(i, BOOKTYPE_SPELL)
+                    local icon = GetSpellBookItemTexture(i, BOOKTYPE_SPELL)
+                    if name and not seen[name] then
+                        seen[name] = true
+                        table.insert(spells, {
+                            kind = "spell",
+                            name = name,
+                            icon = icon,
+                            spellID = spellID,
+                            isPet = false,
+                        })
+                    end
                 end
             end
         end
