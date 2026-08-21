@@ -71,6 +71,13 @@ scripts\Build.ps1 -SkipInstall
 Erzeugt `dist\EasyMakro-<version>.zip` mit dem Ordner `EasyMakro` auf
 oberster Ebene, genau wie von CurseForge erwartet.
 
+Bei jedem auf GitHub veröffentlichten Release baut zusätzlich der
+Workflow [`.github/workflows/release-zip.yml`](.github/workflows/release-zip.yml)
+automatisch dieselbe Zip und hängt sie als Release-Asset an - für einen
+neuen Release reicht also `gh release create vX.Y.Z --title ... --notes
+...` (Version vorher in `EasyMakro/EasyMakro.toc` hochzählen), die
+CurseForge-fertige Zip erscheint danach von selbst am Release.
+
 ## Slash-Befehle
 
 - `/easymakro`

@@ -1,0 +1,43 @@
+name: Package CurseForge Zip
+
+# Baut bei jedem veroeffentlichten GitHub Release automatisch eine
+# CurseForge-taugliche Zip (Ordner "EasyMakro" auf oberster Ebene) und
+# haengt sie als Release-Asset an. Manuelles "scripts/Build.ps1" +
+# "gh release upload" ist damit fuer Releases nicht mehr noetig - beim
+# Release erstellen reicht Titel/Notes, die Zip kommt automatisch dazu.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read addon version from .toc
+        id: version
+        run: |
+          VERSION=$(grep -oP '(?<=## Version: ).*' EasyMakro/EasyMakro.toc | tr -d '\r')
+          if [ -z "$VERSION" ]; then
+            echo "Konnte Version nicht aus EasyMakro/EasyMakro.toc lesen" >&2
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build CurseForge zip
+        run: |
+          mkdir -p dist
+          zip -r "dist/EasyMakro-${{ steps.version.outputs.version }}.zip" EasyMakro
+
+      - name: Upload zip to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            "dist/EasyMakro-${{ steps.version.outputs.version }}.zip" \
+            --clobber
